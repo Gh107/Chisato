@@ -1,11 +1,6 @@
 import os
 from dotenv import load_dotenv
 import discord
-#Might remove
-import scrapy
-from scrapy.linkextractors import LinkExtractor
-import pandas as pd
-#To here
 from langchain_openai import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -50,24 +45,6 @@ chat_prompt = ChatPromptTemplate.from_messages(
 output_parser = StrOutputParser()
 chain = chat_prompt | chat_model | output_parser
 
-#Will change
-class GoogleSpider(scrapy.Spider):
-    name = "google"
-    start_urls = [
-        "https://www.google.com/search?q=your+search+term"
-    ]
-
-    def parse(self, response):
-        xlink = LinkExtractor()
-        link_list = []
-        link_text = []
-        for link in xlink.extract_links(response):
-            if len(str(link)) > 200 or 'YourKeyword' in link.text:
-                link_list.append(link)
-                link_text.append(link.text)
-        df = pd.DataFrame({'links': link_list, 'link_text': link_text})
-        df.to_csv('output.csv', index=False)
-
 def agent_reply(user_input: str):
     #Retrieve the last 5 reply pairs from the database
     retreived_history = cursor.execute("SELECT * FROM ChatHistory ORDER BY datetime(dateTime) DESC LIMIT 10")
@@ -101,9 +78,10 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    username= str(message.author)
+    #username= str(message.author)
+    #channel= str(message.channel)
     user_message= str(message.content)
-    channel= str(message.channel)
+
     print("Message recieved")
     #Insert user message into database
     user_data = (datetime.datetime.now(), "User", user_message)
